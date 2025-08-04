@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  surreal-db-streaming-habit:
+    image: surrealdb/surrealdb:v2.3.7
+    container_name: surreal-db-streaming
+    entrypoint: 
+      - /surreal 
+      - start
+
+      # - --user
+      # - ${DB_USER}
+      # - --pass
+      # - ${DB_PASSWORD}
+      - rocksdb:data/habit
+    volumes:
+      - /share/nomad-volumes/streaming:/data
+    ports:
+      - 14831:8000
+    restart: unless-stopped
