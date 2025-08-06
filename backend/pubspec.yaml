@@ -9,6 +9,7 @@ environment:
 dependencies:
   dart_frog: ^1.1.0
   json_annotation: ^4.9.0
+  shelf_cors_headers: ^0.1.5
   surrealdb: ^1.1.1
 
 dev_dependencies:
