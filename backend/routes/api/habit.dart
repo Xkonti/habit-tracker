@@ -1,16 +1,7 @@
-import 'dart:io';
-
 import 'package:dart_frog/dart_frog.dart';
-import 'package:habit_tracker_api/models/habit.dart';
 import 'package:habit_tracker_api/db/types.dart';
-// import 'package:surrealdb/surrealdb.dart';
-
-final List<Habit> habits = [
-  Habit(createdAt: DateTime.now(), name: 'Stream every day'),
-  // Habit(createdAt: DateTime.now(), name: 'Read technical book for 30m'),
-  // Habit(createdAt: DateTime.now(), name: 'Work on a side project for 30m'),
-  // Habit(createdAt: DateTime.now(), name: 'Go for a walk'),
-];
+// import 'package:habit_tracker_api/models/habit.dart';
+import 'package:surrealdb/surrealdb.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   
@@ -26,20 +17,39 @@ Future<Response> onRequest(RequestContext context) async {
 
 
 Future<Response> onGetHabits(RequestContext context) async {
-  // final db = await context.read<Future<SurrealDB>>();
+  final db = await context.read<Future<SurrealDB>>();
   try {
-    // final queryResult = await db.singleQuery<List<dynamic>>('RETURN [1, 2, 3]');
+    final queryResult = await db.singleQuery<List<dynamic>>(
+      'SELECT name, description FROM habit WHERE deletedAt = NONE ORDER BY name COLLATE ASC;',
+    );
 
-    // if (queryResult.isOk)  {
-    //   print('Result is ok: ${queryResult.result}');
-    // } else {
-    //   print('Result was not ok');
-    // }
+    if (queryResult.isOk)  {
+      final data = queryResult.result;
 
-    return Response.json(body: habits);
-
-  } catch (_) {
+      // final habits = data
+      //   .map((h) {
+      //     final habit = h as Map<String, dynamic>;
+      //     return HabitResponseDto(
+      //       name: habit['name'] as String,
+      //       description: habit['description'] as String,
+      //     );
+      //   })
+      //   .toList();
+      // return Response.json(body: habits);
+      return Response.json(body: data);
+    } else {
+      return Response(
+        statusCode: 500,
+        body: 'There was a problem with the database.',
+      );
+    }
+  } catch (e) {
     rethrow;
+    // print('Error: $e');
+    // return Response(
+    //   statusCode: 500,
+    //   body: 'There was a big problem with the database.',
+    // );
   }
 }
 
@@ -47,9 +57,19 @@ Future<Response> onPostHabit(RequestContext context) async {
   try {
     final body = await context.request.json() as Map<String, dynamic>;
     final habitName = body['name'] as String;
-    // TODO: Check if habit with same name exists first
-    habits.add(Habit(createdAt: DateTime.now(), name: habitName));
-    return Response(statusCode: 204);
+    // TODO: Accept description
+
+    final db = await context.read<Future<SurrealDB>>();
+    final queryResult = await db.singleQuery<List<dynamic>>(
+      r'CREATE habit SET name = $name;',
+      { 'name': habitName},
+    );
+    if (queryResult.isOk) {
+      return Response(statusCode: 204);
+    } else {
+      return Response(statusCode: 400, body: 'Failed to create habit');
+    }
+
   } catch (_) {
     return Response(statusCode: 400, body: "It's your fault!");
   }

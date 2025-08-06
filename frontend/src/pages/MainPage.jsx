@@ -153,9 +153,11 @@ function MainPage() {
             ?? []
     })) ?? []
 
-    const renderedHabits = habits.map(habit => 
-        <HabitCard name={habit.name} lastEntries={habit.entries} key={habit.name} />
-    )
+    const renderedHabits = habits.length > 0
+        ? habits.map(habit => 
+            <HabitCard name={habit.name} lastEntries={habit.entries} key={habit.name} />
+        )
+        : <span>You're not tracking any habits yet. Use the "Add habit" button above to add your first habit.</span>
 
     return (
         <>

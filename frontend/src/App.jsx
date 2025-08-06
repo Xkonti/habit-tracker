@@ -11,7 +11,9 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <MainPage />
+      <div>
+        <MainPage />
+      </div>
     </QueryClientProvider>
   )
 }
