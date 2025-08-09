@@ -7,10 +7,21 @@ part 'habit_history_entry.g.dart';
 class HabitHistoryEntry {
 
   /// Yay!
-  const HabitHistoryEntry({required this.createdAt, this.notes});
+  const HabitHistoryEntry({
+    required this.habitName,
+    required this.date,
+    required this.value,
+    this.notes
+  });
 
-  /// When was the entry logged
-  final DateTime createdAt;
+  /// Referene to a habit this history entry refers to
+  final String habitName;
+
+  /// What date is this history entry for
+  final DateTime date;
+
+  /// Whether the habit was "completed" that date
+  final bool value;
 
   /// Optional notes
   final String? notes;

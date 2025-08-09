@@ -3,6 +3,7 @@ import HabitCard from '../components/HabitCard.jsx'
 import MainToolbar from '../components/MainToolbar.jsx'
 import './MainPage.css'
 import NewHabitDialog from '../components/NewHabitDialog.jsx'
+import LogHabitEntryDialog from '../components/LogHabitEntryDialog.jsx'
 
 import {
   useQuery,
@@ -122,9 +123,11 @@ function MainPage() {
 
     // Dialog and habit adding
     const [isNewHabitDialogShown, setIsNewHabitDialogShown] = useState(false)
+    const [isLogEntryDialogShown, setIsLogEntryDialogShown] = useState(false)
+    const [selectedHabitName, setSelectedHabitName] = useState(null)
 
     const habitMutation = useMutation({
-        mutationFn: async ({ habitName }) => {
+        mutationFn: async ({ habitName, habitDescription }) => {
             const response = await fetch('http://localhost:8080/api/habit', {
                 method: 'POST',
                 headers: {
@@ -132,6 +135,7 @@ function MainPage() {
                 },
                 body: JSON.stringify({
                     name: habitName,
+                    description: habitDescription,
                 })
             });
             if (response.ok) {
@@ -145,6 +149,36 @@ function MainPage() {
         },
     })
 
+    const logMutation = useMutation({
+        mutationFn: async ({ habitName, date, value, notes }) => {
+            const response = await fetch('http://localhost:8080/api/habit/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    habit: habitName,
+                    date,
+                    value,
+                    notes,
+                })
+            });
+            if (response.ok) {
+                return
+            } else {
+                throw new Error(`Error adding habit log: ${response.status}`)
+            }
+        },
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['habits'] })
+        },
+    })
+
+    function handleNewLogPress(habitName) {
+        setSelectedHabitName(habitName)
+        setIsLogEntryDialogShown(true)
+    }
+
     const habits = data?.map(habit => ({
         name: habit.name,
         entries: habit.history
@@ -155,7 +189,7 @@ function MainPage() {
 
     const renderedHabits = habits.length > 0
         ? habits.map(habit => 
-            <HabitCard name={habit.name} lastEntries={habit.entries} key={habit.name} />
+            <HabitCard name={habit.name} lastEntries={habit.entries} key={habit.name} onAddLog={handleNewLogPress} />
         )
         : <span>You're not tracking any habits yet. Use the "Add habit" button above to add your first habit.</span>
 
@@ -177,6 +211,12 @@ function MainPage() {
                         isOpen={isNewHabitDialogShown}
                         onClose={() => setIsNewHabitDialogShown(false)}
                         habitMutation={habitMutation}
+                    />
+                    <LogHabitEntryDialog
+                        isOpen={isLogEntryDialogShown}
+                        onClose={() => setIsLogEntryDialogShown(false)}
+                        habitName={selectedHabitName}
+                        logMutation={logMutation}
                     />
                 </>
             )}

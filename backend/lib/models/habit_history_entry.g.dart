@@ -8,12 +8,16 @@ part of 'habit_history_entry.dart';
 
 HabitHistoryEntry _$HabitHistoryEntryFromJson(Map<String, dynamic> json) =>
     HabitHistoryEntry(
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      habitName: json['habitName'] as String,
+      date: DateTime.parse(json['date'] as String),
+      value: json['value'] as bool,
       notes: json['notes'] as String?,
     );
 
 Map<String, dynamic> _$HabitHistoryEntryToJson(HabitHistoryEntry instance) =>
     <String, dynamic>{
-      'createdAt': instance.createdAt.toIso8601String(),
+      'habitName': instance.habitName,
+      'date': instance.date.toIso8601String(),
+      'value': instance.value,
       'notes': instance.notes,
     };

@@ -1,6 +1,6 @@
 import HabitVisualization from "./HabitVisualization"
 
-function HabitCard({name = "Unnamed", lastEntries}) {
+function HabitCard({name = "Unnamed", lastEntries, onAddLog}) {
     return (
         <fieldset>
             <legend>{name}</legend>
@@ -8,11 +8,11 @@ function HabitCard({name = "Unnamed", lastEntries}) {
                 lastEntries={lastEntries}
                 targetRowCount={1}
                 showEmptyRows={true}
-                habiName={name}
+                habitName={name}
             />
             <div className="toolbar-container">
                 <button>Details</button>
-                <button>Log entry</button>
+                <button onClick={() => onAddLog(name)}>Log entry</button>
             </div>
         </fieldset>
     )

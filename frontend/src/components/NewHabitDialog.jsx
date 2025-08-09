@@ -7,6 +7,7 @@ function NewHabitDialog({
 }) {
     const dialog = useRef(null)
     const [habitName, setHabitName] = useState('')
+    const [habitDescription, setHabitDescription] = useState('')
 
     const {mutate: saveHabit, isPending: isSavingPending, isError: didSaveFail } = habitMutation
 
@@ -32,7 +33,7 @@ function NewHabitDialog({
 
     async function handleNewHabitClick() {
         isSavingIntiated.current = true
-        saveHabit({ habitName: habitName});
+        saveHabit({ habitName: habitName, habitDescription: habitDescription});
     }
 
     return (
@@ -46,15 +47,29 @@ function NewHabitDialog({
             <div className="window-body">
                 { !isSavingPending && (
                     <>
-                        <div class="field-row" style={{marginBottom: "4px"}}>
-                            <label for="newHabitName">Name:</label>
-                            <input id="newHabitName" type="text" value={habitName} onChange={(e) => setHabitName(e.target.value)} />
+                        <div className="field-row" style={{marginBottom: "4px"}}>
+                            <label htmlFor="newHabitName">Name:</label>
+                            <input
+                                id="newHabitName"
+                                type="text"
+                                value={habitName}
+                                onChange={(e) => setHabitName(e.target.value)}
+                            />
                         </div>
                         { didSaveFail && (
                             <div style={{marginBottom: "4px"}}>
                                 Habit with this name already exists
                             </div>
                         )}
+                        <div className="field-row-stacked" style={{marginBottom: "4px"}}>
+                            <label htmlFor="newDescription">Description:</label>
+                            <textarea
+                                id="newDescription"
+                                rows="6"
+                                value={habitDescription}
+                                onChange={(e) => setHabitDescription(e.target.value)}
+                            />
+                        </div>
                         <div className="toolbar-container">
                             <button disabled={habitName.length < 3} onClick={handleNewHabitClick}>Add</button>
                         </div>
