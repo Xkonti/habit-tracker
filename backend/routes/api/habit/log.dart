@@ -34,7 +34,13 @@ Future<Response> onPostLog(RequestContext context) async {
     final db = await context.read<Future<SurrealDB>>();
     final queryResult = await db.singleQuery<dynamic>(r'''
       LET $habitId = (SELECT VALUE id FROM ONLY habit WHERE name = $habitName);
-      CREATE logEntry SET habitId = $habitId, date = <datetime>$logDate, value = $logValue, notes = $logNotes;
+      UPSERT logEntry
+        SET
+          habitId = $habitId,
+          date = <datetime>$logDate,
+          value = $logValue,
+          notes = $logNotes
+        WHERE habitId = $habitId AND date = <datetime>$logDate;
       ''',
       {
         'habitName': habitName,

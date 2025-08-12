@@ -23,10 +23,10 @@ function DateSelector({date, onDateChange}) {
     function onDayChange(newDay) { changeDate(year, month, parseInt(newDay)) }
 
     return (
-        <div style={{'display': 'flex', 'align-items': 'center'}}>
+        <div style={{display: 'flex', alignItems: 'center'}}>
             <select value={year} onChange={(e) => onYearChange(e.target.value)}>
                 { listOfYears.map((year) => (
-                    <option>{year}</option>
+                    <option key={year}>{year}</option>
                 )) }
             </select>
             <select value={month} onChange={(e) => onMonthChange(e.target.value)}>
@@ -45,7 +45,7 @@ function DateSelector({date, onDateChange}) {
             </select>
             <select value={day} onChange={(e) => onDayChange(e.target.value)}>
                 { listOfDays.map((day) => (
-                    <option>{day}</option>
+                    <option key={day}>{day}</option>
                 )) }
             </select>
         </div>

@@ -181,10 +181,10 @@ function MainPage() {
 
     const habits = data?.map(habit => ({
         name: habit.name,
-        entries: habit.history
-            ?.sort((a, b) => new Date(a.date) - new Date(b.date))
-            .map(e => e.value)
-            ?? []
+        entries: habit.history ?? []
+            // ?.sort((a, b) => new Date(a.date) - new Date(b.date))
+            // .map(e => e.value)
+            // ?? []
     })) ?? []
 
     const renderedHabits = habits.length > 0

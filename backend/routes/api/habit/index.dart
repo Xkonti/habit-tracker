@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dart_frog/dart_frog.dart';
 import 'package:habit_tracker_api/db/types.dart';
 // import 'package:habit_tracker_api/models/habit.dart';
@@ -21,41 +23,53 @@ Future<Response> onRequest(RequestContext context) async {
 Future<Response> onGetHabits(RequestContext context) async {
   final db = await context.read<Future<SurrealDB>>();
   try {
-    final queryResult = await db.singleQuery<List<dynamic>>('''
-      SELECT date, value, notes, habitId.{id, name, description} as habit
-      FROM logEntry
-      WHERE deletedAt is NONE AND date > time::now() - 11d AND date < time::now();
+    final results = await db.query('''
+      SELECT id, name, description FROM habit WHERE deletedAt is NONE;
+      SELECT date, value, notes, habitId
+        FROM logEntry
+        WHERE deletedAt is NONE AND date > time::now() - 3001d AND date < time::now();
       '''
     );
+    if (results == null) {
+      return Response(
+        statusCode: 500,
+        body: 'There was a problem with the database.',
+      );
+    }
+    final queryResults = results.toQueryResults();
+    final habitsQuery = queryResults.getQueryResult<List<dynamic>>(0);
+    final logEntriesQuery = queryResults.getQueryResult<List<dynamic>>(1);
 
-    if (!queryResult.isOk)  {
+    if (!habitsQuery.isOk || !logEntriesQuery.isOk)  {
       return Response(
         statusCode: 500,
         body: 'There was a problem with the database.',
       );
     }
 
-    final data = queryResult.result.cast<SurrealObject>();
+    // Create a map of habits
     final habitMap = <String, SurrealObject>{};
+    final habitsData = habitsQuery.result.cast<SurrealObject>();
+    for (final habitData in habitsData) {
+      final habitId = habitData['id'] as String;
+      final habitName = habitData['name'];
+      final habitDescription = habitData['description'];
+      final newHabitData = {
+        'name': habitName,
+        'description': habitDescription,
+        'history': <SurrealObject>[],
+      };
+      habitMap[habitId] = newHabitData;
+    }
 
-    for (final logEntryData in data) {
+    final logEntriesData = logEntriesQuery.result.cast<SurrealObject>();
+    for (final logEntryData in logEntriesData) {
+      final habitId = logEntryData['habitId'] as String;
+      if (!habitMap.containsKey(habitId)) continue;
+
       final logDate = logEntryData['date'];
       final logValue = logEntryData['value'];
       final logNotes = logEntryData['notes'];
-      final habitData = logEntryData['habit'] as SurrealObject;
-      final habitId = habitData['id'] as String;
-
-      // If habit data not yet extracted, do it now
-      if (!habitMap.containsKey(habitId)) {
-        final habitName = habitData['name'];
-        final habitDescription = habitData['description'];
-        final newHabitData = {
-          'name': habitName,
-          'description': habitDescription,
-          'history': <SurrealObject>[],
-        };
-        habitMap[habitId] = newHabitData;
-      }
 
       final newEntryData = {
         'date': logDate,
