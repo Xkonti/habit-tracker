@@ -11,103 +11,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
-// const dataFromServer = {
-//     habits: [
-//         {
-//             name: "Stream every day",
-//             history: [
-//                 {
-//                     date: "2025.07.01",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.02",
-//                     value: false
-//                 },
-//                 {
-//                     date: "2025.07.03",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.04",
-//                     value: true
-//                 },
-//             ],
-//         },
-//         {
-//             name: "Work on side project for 30m",
-//             history: [
-//                 {
-//                     date: "2025.07.01",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.02",
-//                     value: false
-//                 },
-//                 {
-//                     date: "2025.07.03",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.04",
-//                     value: true
-//                 },
-//             ],
-//         },
-//         {
-//             name: "Read technical book for 30m",
-//             history: [
-//                 {
-//                     date: "2025.07.01",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.04",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.02",
-//                     value: false
-//                 },
-//                 {
-//                     date: "2025.07.03",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.05",
-//                     value: false
-//                 },
-//                 {
-//                     date: "2021.07.01",
-//                     value: false
-//                 },
-//             ],
-//         },
-//         {
-//             name: "Wake up before 10AM",
-//             history: [
-//                 {
-//                     date: "2025.07.01",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.02",
-//                     value: false
-//                 },
-//                 {
-//                     date: "2025.07.03",
-//                     value: true
-//                 },
-//                 {
-//                     date: "2025.07.04",
-//                     value: true
-//                 },
-//             ],
-//         },
-//     ]
-// }
-
 function MainPage() {
     const queryClient = useQueryClient()
 
@@ -151,13 +54,12 @@ function MainPage() {
 
     const logMutation = useMutation({
         mutationFn: async ({ habitName, date, value, notes }) => {
-            const response = await fetch('http://localhost:8080/api/habit/log', {
+            const response = await fetch(`http://localhost:8080/api/habit/${btoa(habitName)}/log`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    habit: habitName,
                     date,
                     value,
                     notes,
@@ -181,10 +83,7 @@ function MainPage() {
 
     const habits = data?.map(habit => ({
         name: habit.name,
-        entries: habit.history ?? []
-            // ?.sort((a, b) => new Date(a.date) - new Date(b.date))
-            // .map(e => e.value)
-            // ?? []
+        entries: habit.history ?? [],
     })) ?? []
 
     const renderedHabits = habits.length > 0

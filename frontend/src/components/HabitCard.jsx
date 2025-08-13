@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import HabitVisualization from "./HabitVisualization"
 
 function HabitCard({name = "Unnamed", lastEntries, onAddLog}) {
@@ -11,7 +12,9 @@ function HabitCard({name = "Unnamed", lastEntries, onAddLog}) {
                 habitName={name}
             />
             <div className="toolbar-container">
-                <button>Details</button>
+                <Link to={`/habits/${name}`}>
+                    <button>Details</button>
+                </Link>
                 <button onClick={() => onAddLog(name)}>Log entry</button>
             </div>
         </fieldset>

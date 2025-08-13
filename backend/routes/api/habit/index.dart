@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dart_frog/dart_frog.dart';
 import 'package:habit_tracker_api/db/types.dart';
 // import 'package:habit_tracker_api/models/habit.dart';
@@ -27,7 +25,7 @@ Future<Response> onGetHabits(RequestContext context) async {
       SELECT id, name, description FROM habit WHERE deletedAt is NONE;
       SELECT date, value, notes, habitId
         FROM logEntry
-        WHERE deletedAt is NONE AND date > time::now() - 3001d AND date < time::now();
+        WHERE deletedAt is NONE AND date > time::now() - 11d AND date < time::now();
       '''
     );
     if (results == null) {
